@@ -1,126 +1,179 @@
 # OctoberCMS Headless + Vue.js Demo
 
 > **Proof of concept**: OctoberCMS без CMS-модуля как чистый API backend, Vue.js как полноценный фронт со своим роутингом.
+>
+> Коллеги говорят что на OctoberCMS нельзя сделать фронт на чём угодно? Смотрите сюда 👇
 
-## Тезис
+## Суть
 
-OctoberCMS — это не только CMS с шаблонами Twig. Это Laravel-фреймворк с удобной экосистемой плагинов. CMS-модуль (страницы, шаблоны, медиа) — **опциональный компонент**, который можно отключить.
+OctoberCMS — это не только CMS с Twig-шаблонами. Это **Laravel-фреймворк** с удобной экосистемой плагинов. CMS-модуль (страницы, шаблоны, медиа) — **опциональный компонент**, который можно отключить одной строкой.
 
 После отключения:
 - OctoberCMS = чистый Laravel API backend
-- Фронт — любой: Vue.js, React, Next.js, Nuxt.js, мобильное приложение — что угодно
-- Данные — через REST или GraphQL API
+- Фронт — **любой**: Vue.js, React, Next.js, Nuxt.js, мобильное приложение
+- Данные — через REST API
+- Admin-панель OctoberCMS работает как обычно для управления данными
+
+## Что есть в этом репо
+
+```
+october-headless-demo/
+├── backend/                         # OctoberCMS (Laravel)
+│   ├── composer.json                # ← зависимости, с этого начинаем
+│   ├── .env.example                 # ← конфиг (скопировать в .env)
+│   ├── config/
+│   │   └── cms.php                  # ← CMS_DISABLE_MODULE=true
+│   └── plugins/demo/api/
+│       ├── Plugin.php               # CORS + меню в Admin
+│       ├── routes.php               # API роуты (/api/v1/*)
+│       ├── models/
+│       │   ├── Post.php
+│       │   └── Todo.php
+│       ├── http/controllers/
+│       │   ├── PostController.php   # GET /api/v1/posts
+│       │   └── TodoController.php   # CRUD /api/v1/todos
+│       ├── controllers/
+│       │   ├── Todos.php            # OctoberCMS Admin контроллер
+│       │   └── todos/
+│       │       ├── config_list.yaml # Список в Admin
+│       │       └── config_form.yaml # Форма создания/редактирования
+│       └── updates/
+│           ├── version.yaml
+│           └── create_todos_table.php
+└── frontend/                        # Vue.js SPA
+    ├── package.json                 # ← зависимости npm
+    ├── vite.config.js               # Vite + proxy на backend
+    ├── index.html
+    └── src/
+        ├── main.js
+        ├── App.vue
+        ├── router/index.js          # Vue Router — клиентский роутинг
+        ├── api/client.js            # Axios → OctoberCMS API
+        └── views/
+            ├── HomeView.vue         # / — список постов
+            ├── PostView.vue         # /posts/:slug
+            ├── TodoView.vue         # /todos — Todo лист (API-backed)
+            └── AboutView.vue        # /about
+```
 
 ## Архитектура
 
 ```
-┌─────────────────────────┐     HTTP/JSON      ┌──────────────────────────┐
-│     Vue.js Frontend     │ ◄────────────────► │   OctoberCMS Backend     │
-│                         │                    │                          │
-│  Vue Router (SPA)       │                    │  CMS Module: DISABLED    │
-│  Pinia (state)          │                    │  API Routes: ENABLED     │
-│  Axios (HTTP client)    │                    │  Models + Plugins        │
-└─────────────────────────┘                    └──────────────────────────┘
-     localhost:5173                                 localhost:8000
+┌─────────────────────────┐     GET /api/v1/todos     ┌──────────────────────────┐
+│     Vue.js Frontend     │ ◄───────────────────────► │   OctoberCMS Backend     │
+│   localhost:5173        │                            │   localhost:8000          │
+│                         │                            │                          │
+│  Vue Router (SPA)       │                            │  CMS Module: DISABLED ✗  │
+│  /         → HomeView   │                            │  API Routes: ENABLED  ✓  │
+│  /todos    → TodoView   │                            │  Admin Panel: /backend   │
+│  /about    → AboutView  │                            │  Database: SQLite/MySQL  │
+└─────────────────────────┘                            └──────────────────────────┘
 ```
 
-## Структура проекта
+## Установка и запуск
 
-```
-october-headless-demo/
-├── backend/                    # OctoberCMS (Laravel-based)
-│   ├── config/
-│   │   └── cms.php             # CMS module disabled here
-│   └── plugins/
-│       └── demo/
-│           └── api/            # API Plugin
-│               ├── Plugin.php
-│               ├── routes.php  # API endpoints
-│               └── models/
-│                   └── Post.php
-└── frontend/                   # Vue.js SPA
-    ├── src/
-    │   ├── main.js
-    │   ├── router/index.js     # Vue Router (клиентский роутинг)
-    │   ├── api/client.js       # Axios wrapper
-    │   └── views/
-    │       ├── HomeView.vue
-    │       └── PostView.vue
-    ├── package.json
-    └── vite.config.js
+### 1. Backend (OctoberCMS)
+
+```bash
+cd backend
+
+# Установить зависимости
+composer install
+
+# Скопировать конфиг
+cp .env.example .env
+
+# Сгенерировать ключ приложения
+php artisan key:generate
+
+# Создать SQLite базу (или настроить MySQL в .env)
+touch database/database.sqlite
+
+# Запустить миграции и установку
+php artisan october:up
+
+# Запустить сервер
+php artisan serve
+# → http://localhost:8000
 ```
 
-## Ключевой момент — отключение CMS модуля
+Войти в Admin: `http://localhost:8000/backend`
+Логин: `admin` / Пароль: задаётся при `october:up`
+
+### 2. Frontend (Vue.js)
+
+```bash
+cd frontend
+
+# Установить зависимости
+npm install
+
+# Запустить dev-сервер
+npm run dev
+# → http://localhost:5173
+```
+
+### 3. Проверить что работает
+
+```bash
+# API backend
+curl http://localhost:8000/api/v1/health
+# → {"status":"ok","cms_module":"disabled","message":"OctoberCMS headless API is running!"}
+
+# Todos API
+curl http://localhost:8000/api/v1/todos
+# → {"data":[...]}
+```
+
+## Ключевой момент — одна строка отключает CMS
 
 **`backend/config/cms.php`**:
 ```php
-<?php return [
-    'disableCmsModule' => true,  // ← Вот и всё!
-];
+'disableCmsModule' => env('CMS_DISABLE_MODULE', true),
 ```
 
-Или через `.env`:
+**`backend/.env`**:
 ```
 CMS_DISABLE_MODULE=true
 ```
 
-После этого OctoberCMS перестаёт обрабатывать URL через свои шаблоны — все маршруты теперь через стандартный Laravel Router.
+Всё. После этого OctoberCMS не обрабатывает ни один URL через свои шаблоны. Все маршруты — через стандартный Laravel Router в `routes.php` плагина.
 
-## Backend: API Plugin
+## Демо: Admin → Vue.js синхронизация
 
-**`backend/plugins/demo/api/routes.php`** — стандартный Laravel routing:
-```php
-<?php
-Route::prefix('api/v1')->group(function () {
-    Route::get('/posts', 'Demo\Api\Http\Controllers\PostController@index');
-    Route::get('/posts/{slug}', 'Demo\Api\Http\Controllers\PostController@show');
-});
-```
+1. Открываем Admin: `http://localhost:8000/backend`
+2. Переходим в **Todos** (в меню слева)
+3. Создаём задачу
+4. Открываем Vue фронт: `http://localhost:5173/todos`
+5. Видим только что созданную задачу — **без перезагрузки страницы**
 
-Это чистый Laravel. Никакого Twig. Никаких CMS-шаблонов.
+И наоборот — добавляем задачу в Vue, она появляется в Admin.
 
-## Frontend: Vue.js со своим роутингом
+## API Endpoints
 
-Vue Router управляет URL полностью на клиенте:
+| Method | URL | Описание |
+|--------|-----|----------|
+| GET | `/api/v1/health` | Проверка работы API |
+| GET | `/api/v1/posts` | Список постов |
+| GET | `/api/v1/posts/:slug` | Один пост |
+| GET | `/api/v1/todos` | Список задач |
+| POST | `/api/v1/todos` | Создать задачу |
+| PUT | `/api/v1/todos/:id` | Обновить задачу |
+| DELETE | `/api/v1/todos/:id` | Удалить задачу |
 
-```
-/            → HomeView (список постов)
-/posts/:slug → PostView (один пост)
-/about       → AboutView
-```
+## Можно использовать любой фронт
 
-Vue не знает об OctoberCMS. Он просто делает fetch на API и рендерит данные.
+OctoberCMS как backend — это просто Laravel API. Клиент может быть любым:
 
-## Запуск
-
-### Backend (OctoberCMS)
-```bash
-cd backend
-composer install
-php artisan october:up
-php artisan serve  # → localhost:8000
-```
-
-### Frontend (Vue.js)
-```bash
-cd frontend
-npm install
-npm run dev  # → localhost:5173
-```
-
-## Итог
-
-| Возможность | OctoberCMS Headless |
-|-------------|---------------------|
-| Vue.js frontend | ✅ |
-| React frontend | ✅ |
-| Next.js / Nuxt | ✅ |
-| Mobile app | ✅ |
-| Любой HTTP клиент | ✅ |
-| CMS module | Отключён (не нужен) |
-
-**OctoberCMS — это Laravel. А на Laravel можно сделать API для любого фронта.**
+| Frontend | Поддержка |
+|----------|-----------|
+| Vue.js | ✅ (этот пример) |
+| React | ✅ |
+| Next.js | ✅ |
+| Nuxt.js | ✅ |
+| Мобильное приложение (iOS/Android) | ✅ |
+| Postman / curl | ✅ |
 
 ---
 
-*Demo created by [Clawdia](https://t.me/ghostinthemachine_ai) for [Fruskate](https://t.me/fruskate)*
+*Demo by [Clawdia](https://t.me/ghostinthemachine_ai) for [Fruskate](https://t.me/fruskate)*
