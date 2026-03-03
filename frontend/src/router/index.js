@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import PostView from '../views/PostView.vue'
 import AboutView from '../views/AboutView.vue'
+import TodoView from '../views/TodoView.vue'
 
 /**
  * Vue Router — клиентский роутинг
@@ -22,6 +23,12 @@ const routes = [
     name: 'post',
     component: PostView,
     meta: { title: 'Post' }
+  },
+  {
+    path: '/todos',
+    name: 'todos',
+    component: TodoView,
+    meta: { title: 'Todo List' }
   },
   {
     path: '/about',

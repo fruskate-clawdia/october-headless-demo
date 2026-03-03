@@ -2,6 +2,7 @@
   <div id="app">
     <nav>
       <router-link to="/">Posts</router-link>
+      <router-link to="/todos">Todos</router-link>
       <router-link to="/about">About</router-link>
     </nav>
     <!-- Vue Router renders the active view here -->
