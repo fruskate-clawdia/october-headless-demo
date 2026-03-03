@@ -1,14 +1,15 @@
 title: Todos
 modelClass: Demo\Api\Models\Todo
+list: $/demo/api/models/todo/columns.yaml
 recordUrl: demo/api/todos/update/:id
+defaultSort:
+    column: sort_order
+    direction: asc
 
-columns:
-    title:
-        label: Task
-        searchable: true
-    done:
-        label: Done
-        type: switch
-    created_at:
-        label: Created
-        type: datetime
+structure:
+    showTree: false
+    showReorder: true
+    showSorting: false
+
+toolbar:
+    buttons: list_toolbar

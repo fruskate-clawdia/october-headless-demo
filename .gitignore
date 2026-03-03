@@ -3,4 +3,5 @@ frontend/dist/
 backend/vendor/
 backend/.env
 backend/storage/
+backend/database/*.sqlite
 *.log

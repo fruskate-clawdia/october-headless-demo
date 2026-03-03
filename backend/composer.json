@@ -1,42 +1,62 @@
 {
-    "name": "fruskate/october-headless-demo",
-    "description": "OctoberCMS as headless API backend — demo project",
+    "name": "october/october",
+    "description": "Built using October CMS: The Laravel-Based CMS Engineered For Simplicity",
     "type": "project",
+    "homepage": "https://octobercms.com",
+    "license": "proprietary",
     "require": {
-        "php": "^8.1",
-        "october/rain": "^3.6",
-        "october/system": "^3.6",
-        "october/backend": "^3.6",
-        "october/cms": "^3.6"
+        "php": "^8.2",
+        "october/rain": "^4.1",
+        "laravel/framework": "^12.0",
+        "october/all": "^4.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "App\\": "app/",
-            "Demo\\Api\\": "plugins/demo/api/"
-        },
-        "classmap": [
-            "database/seeds"
-        ]
+        "phpunit/phpunit": "^8.5|^9.0",
+        "squizlabs/php_codesniffer": "^3.11"
     },
     "scripts": {
-        "post-install-cmd": [
-            "php artisan october:up"
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ],
+        "post-autoload-dump": [
+            "System\\Console\\ComposerScript::postAutoloadDump"
         ],
         "post-update-cmd": [
-            "php artisan october:up"
+            "System\\Console\\ComposerScript::postUpdateCmd"
+        ],
+        "pre-package-uninstall": [
+            "System\\Console\\ComposerScript::prePackageUninstall"
+        ],
+        "test": [
+            "phpunit --stop-on-failure"
+        ],
+        "lint": [
+            "phpcs"
         ]
     },
     "config": {
-        "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true,
         "allow-plugins": {
-            "composer/package-versions-deprecated": true
+            "composer/installers": true
+        },
+        "audit": {
+            "block-insecure": false
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "autoload": {
+        "psr-4": {
+            "System\\Console\\": "modules/system/console"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "repositories": [{
+        "name": "octobercms",
+        "type": "composer",
+        "url": "https://gateway.octobercms.com",
+        "only": ["october/*", "*-plugin", "*-theme"]
+    }]
 }

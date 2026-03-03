@@ -1,17 +1,20 @@
 <template>
-  <div id="app">
-    <nav>
-      <router-link to="/">Posts</router-link>
-      <router-link to="/todos">Todos</router-link>
-      <router-link to="/about">About</router-link>
-    </nav>
-    <!-- Vue Router renders the active view here -->
-    <!-- OctoberCMS knows nothing about these routes -->
-    <router-view />
-  </div>
+  <AppNavbar />
+  <main class="main-content">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </main>
 </template>
 
 <script setup>
-// App root — pure Vue.js
-// No connection to OctoberCMS templates whatsoever
+import AppNavbar from './components/AppNavbar.vue'
 </script>
+
+<style scoped>
+.main-content {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+}
+</style>

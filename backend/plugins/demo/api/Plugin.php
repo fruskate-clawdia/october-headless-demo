@@ -24,11 +24,18 @@ class Plugin extends PluginBase
     {
         return [
             'todos' => [
-                'label'       => 'Todos',
+                'label'       => 'Todo List',
                 'url'         => \Backend::url('demo/api/todos'),
-                'icon'        => 'icon-check-square-o',
+                'icon'        => 'icon-check-square',
                 'permissions' => ['demo.api.*'],
-                'order'       => 500,
+                'order'       => 100,
+                'sideMenu'    => [
+                    'todos' => [
+                        'label' => 'All Todos',
+                        'icon'  => 'icon-list',
+                        'url'   => \Backend::url('demo/api/todos'),
+                    ],
+                ],
             ],
         ];
     }
@@ -36,12 +43,11 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         // CORS headers for Vue.js frontend (localhost:5173 in dev)
-        app('router')->matched(function () {
-            $response = app('response');
+        \Event::listen('Illuminate\Routing\Events\RouteMatched', function () {
             $allowedOrigins = [
-                'http://localhost:5173',  // Vite dev server
-                'http://localhost:3000',  // Alternative dev port
-                env('FRONTEND_URL', ''), // Production frontend URL
+                'http://localhost:5173',
+                'http://localhost:3000',
+                env('FRONTEND_URL', ''),
             ];
 
             $origin = request()->header('Origin', '');

@@ -1,21 +1,13 @@
 name: Todo
 modelClass: Demo\Api\Models\Todo
+form: $/demo/api/models/todo/fields.yaml
 
-fields:
-    title:
-        label: Task Title
-        type: text
-        required: true
-        span: full
-        placeholder: What needs to be done?
+create:
+    title: New Todo
+    redirect: demo/api/todos
+    redirectClose: demo/api/todos
 
-    done:
-        label: Mark as done
-        type: switch
-        span: left
-
-    sort_order:
-        label: Sort Order
-        type: number
-        span: right
-        default: 0
+update:
+    title: Edit Todo
+    redirect: demo/api/todos
+    redirectClose: demo/api/todos

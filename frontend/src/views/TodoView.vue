@@ -1,46 +1,72 @@
 <template>
-  <div class="todo-app">
-    <h1>Todo List</h1>
-    <p class="subtitle">
-      Data lives in OctoberCMS database.
-      Manage via <strong>Admin panel</strong> → you see changes here in real time 🔄
-    </p>
+  <div class="container">
+    <header class="page-header animate-in">
+      <h1>Todos</h1>
+      <p class="page-subtitle">
+        Data lives in OctoberCMS database. Manage via Admin panel — changes sync in real time.
+      </p>
+    </header>
 
-    <!-- Add new todo -->
-    <form @submit.prevent="handleAdd" class="add-form">
-      <input v-model="newTodo" placeholder="Add a task..." autofocus />
-      <button type="submit" :disabled="adding">{{ adding ? '...' : 'Add' }}</button>
+    <!-- Add form -->
+    <form @submit.prevent="handleAdd" class="add-form glass-card animate-in">
+      <input
+        v-model="newTodo"
+        placeholder="Add a task..."
+        class="add-form__input"
+        autofocus
+      />
+      <button type="submit" class="add-form__btn" :disabled="adding">
+        {{ adding ? '...' : 'Add' }}
+      </button>
     </form>
 
-    <!-- Loading state -->
-    <div v-if="loading" class="loading">Loading from OctoberCMS API...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-
-    <!-- Stats -->
-    <div class="stats" v-if="todos.length">
-      <span>{{ pending.length }} pending</span>
-      <span>{{ completed.length }} done</span>
-      <button v-if="completed.length" @click="clearCompleted" class="clear-btn">
-        Clear completed
-      </button>
+    <!-- Loading -->
+    <div v-if="loading" class="stagger-children" style="margin-top: var(--space-lg)">
+      <div v-for="n in 3" :key="n" class="glass-card skeleton-todo">
+        <div class="skeleton" style="height: 1rem; width: 60%"></div>
+      </div>
     </div>
 
-    <!-- Todo list -->
-    <ul class="todo-list">
-      <li v-for="todo in todos" :key="todo.id" :class="{ done: todo.done }">
-        <input
-          type="checkbox"
-          :checked="todo.done"
-          @change="toggleTodo(todo)"
-        />
-        <span class="todo-text">{{ todo.title }}</span>
-        <button @click="removeTodo(todo.id)" class="remove-btn">✕</button>
-      </li>
-    </ul>
+    <div v-else-if="error" class="error-message animate-in">{{ error }}</div>
 
-    <p v-if="!loading && !todos.length" class="empty">
-      No tasks yet. Add one above, or create in OctoberCMS admin!
-    </p>
+    <template v-else>
+      <!-- Stats -->
+      <div class="stats animate-in" v-if="todos.length">
+        <span class="badge badge--teal">{{ pending.length }} pending</span>
+        <span class="badge badge--amber">{{ completed.length }} done</span>
+        <button v-if="completed.length" @click="clearCompleted" class="clear-btn">
+          Clear completed
+        </button>
+      </div>
+
+      <!-- Todo list -->
+      <div class="todo-list stagger-children">
+        <div
+          v-for="todo in todos"
+          :key="todo.id"
+          class="todo-item glass-card"
+          :class="{ 'todo-item--done': todo.done }"
+        >
+          <label class="todo-item__check">
+            <input
+              type="checkbox"
+              :checked="todo.done"
+              @change="toggleTodo(todo)"
+              class="todo-item__input"
+            />
+            <span class="todo-item__indicator"></span>
+          </label>
+          <span class="todo-item__text">{{ todo.title }}</span>
+          <button @click="removeTodo(todo.id)" class="todo-item__remove" aria-label="Remove">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <p v-if="!todos.length" class="empty-state animate-in">
+        No tasks yet. Add one above, or create in OctoberCMS admin!
+      </p>
+    </template>
   </div>
 </template>
 
@@ -100,21 +126,194 @@ onMounted(fetchTodos)
 </script>
 
 <style scoped>
-.todo-app { max-width: 500px; margin: 2rem auto; padding: 0 1rem; }
-.subtitle { color: #888; font-size: 0.9rem; }
-.add-form { display: flex; gap: 0.5rem; margin: 1.5rem 0; }
-.add-form input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
-.add-form button { padding: 0.5rem 1rem; background: #42b883; color: white; border: none; border-radius: 6px; cursor: pointer; }
-.add-form button:disabled { background: #aaa; cursor: default; }
-.stats { display: flex; gap: 1rem; align-items: center; font-size: 0.85rem; color: #666; margin-bottom: 1rem; }
-.clear-btn { margin-left: auto; padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #e55; background: none; border: 1px solid #e55; border-radius: 4px; cursor: pointer; }
-.todo-list { list-style: none; padding: 0; margin: 0; }
-.todo-list li { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid #f0f0f0; }
-.todo-text { flex: 1; }
-.done .todo-text { text-decoration: line-through; color: #aaa; }
-.remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 0.9rem; }
-.remove-btn:hover { color: #e55; }
-.empty { color: #aaa; text-align: center; margin-top: 2rem; }
-.loading { color: #888; margin: 2rem 0; }
-.error { color: #e55; margin: 1rem 0; }
+.page-header {
+  margin-bottom: var(--space-xl);
+}
+
+.page-subtitle {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  margin-top: var(--space-xs);
+}
+
+/* Add form */
+.add-form {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+}
+
+.add-form__input {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.add-form__input::placeholder {
+  color: var(--color-muted);
+}
+
+.add-form__input:focus {
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px rgba(6, 214, 160, 0.15);
+}
+
+.add-form__btn {
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-teal);
+  color: var(--color-base);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.add-form__btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.add-form__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-lg) 0;
+}
+
+.clear-btn {
+  margin-left: auto;
+  padding: var(--space-xs) var(--space-md);
+  background: none;
+  border: 1px solid rgba(255, 0, 110, 0.3);
+  border-radius: var(--radius-pill);
+  color: var(--color-rose);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.clear-btn:hover {
+  background: rgba(255, 0, 110, 0.1);
+  border-color: var(--color-rose);
+}
+
+/* Todo list */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+}
+
+/* Custom checkbox */
+.todo-item__check {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.todo-item__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.todo-item__indicator {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--color-muted);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-bounce);
+}
+
+.todo-item__input:checked + .todo-item__indicator {
+  border-color: var(--color-teal);
+  background: var(--color-teal);
+  transform: scale(1.1);
+}
+
+.todo-item__input:checked + .todo-item__indicator::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 10px;
+  margin: 2px auto 0;
+  border: solid var(--color-base);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.todo-item__text {
+  flex: 1;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.todo-item--done .todo-item__text {
+  text-decoration: line-through;
+  color: var(--color-muted);
+  opacity: 0.6;
+}
+
+.todo-item__remove {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: color var(--transition-fast), opacity var(--transition-fast), background var(--transition-fast);
+}
+
+.todo-item:hover .todo-item__remove {
+  opacity: 1;
+}
+
+.todo-item__remove:hover {
+  color: var(--color-rose);
+  background: rgba(255, 0, 110, 0.1);
+}
+
+.skeleton-todo {
+  height: 56px;
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+}
+
+.error-message {
+  color: var(--color-rose);
+  padding: var(--space-lg);
+}
+
+.empty-state {
+  color: var(--color-muted);
+  text-align: center;
+  padding: var(--space-3xl) 0;
+}
 </style>
