@@ -15,4 +15,10 @@ export const getPosts = () => apiClient.get('/posts')
 export const getPost = (slug) => apiClient.get(`/posts/${slug}`)
 export const healthCheck = () => apiClient.get('/health')
 
+// Todos API
+export const getTodos = () => apiClient.get('/todos')
+export const createTodo = (title) => apiClient.post('/todos', { title })
+export const updateTodo = (id, data) => apiClient.put(`/todos/${id}`, data)
+export const deleteTodo = (id) => apiClient.delete(`/todos/${id}`)
+
 export default apiClient

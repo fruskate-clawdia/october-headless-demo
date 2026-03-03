@@ -1,0 +1,21 @@
+name: Todo
+modelClass: Demo\Api\Models\Todo
+
+fields:
+    title:
+        label: Task Title
+        type: text
+        required: true
+        span: full
+        placeholder: What needs to be done?
+
+    done:
+        label: Mark as done
+        type: switch
+        span: left
+
+    sort_order:
+        label: Sort Order
+        type: number
+        span: right
+        default: 0

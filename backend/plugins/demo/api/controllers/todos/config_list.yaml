@@ -1,0 +1,14 @@
+title: Todos
+modelClass: Demo\Api\Models\Todo
+recordUrl: demo/api/todos/update/:id
+
+columns:
+    title:
+        label: Task
+        searchable: true
+    done:
+        label: Done
+        type: switch
+    created_at:
+        label: Created
+        type: datetime

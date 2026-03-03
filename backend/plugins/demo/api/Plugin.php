@@ -20,6 +20,19 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerNavigation(): array
+    {
+        return [
+            'todos' => [
+                'label'       => 'Todos',
+                'url'         => \Backend::url('demo/api/todos'),
+                'icon'        => 'icon-check-square-o',
+                'permissions' => ['demo.api.*'],
+                'order'       => 500,
+            ],
+        ];
+    }
+
     public function boot(): void
     {
         // CORS headers for Vue.js frontend (localhost:5173 in dev)
