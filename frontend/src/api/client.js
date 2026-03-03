@@ -11,8 +11,6 @@ const apiClient = axios.create({
   },
 })
 
-export const getPosts = () => apiClient.get('/posts')
-export const getPost = (slug) => apiClient.get(`/posts/${slug}`)
 export const healthCheck = () => apiClient.get('/health')
 
 // Todos API

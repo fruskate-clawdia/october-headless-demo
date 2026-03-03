@@ -1,34 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import PostView from '../views/PostView.vue'
 import AboutView from '../views/AboutView.vue'
 import TodoView from '../views/TodoView.vue'
 
 /**
- * Vue Router — клиентский роутинг
+ * Vue Router — client-side routing
  *
- * OctoberCMS ничего не знает об этих URL.
- * Весь routing обрабатывается на клиенте Vue.js.
- * Backend видит только /api/* запросы.
+ * OctoberCMS knows nothing about these URLs.
+ * All routing is handled on the Vue.js client side.
+ * The backend only sees /api/* requests.
  */
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
-    meta: { title: 'Posts' }
-  },
-  {
-    path: '/posts/:slug',
-    name: 'post',
-    component: PostView,
-    meta: { title: 'Post' }
+    component: TodoView,
+    meta: { title: 'Todos' }
   },
   {
     path: '/todos',
-    name: 'todos',
-    component: TodoView,
-    meta: { title: 'Todo List' }
+    redirect: '/'
   },
   {
     path: '/about',
@@ -36,7 +26,6 @@ const routes = [
     component: AboutView,
     meta: { title: 'About' }
   },
-  // Any other route — Vue handles it, not OctoberCMS
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',

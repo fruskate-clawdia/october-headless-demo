@@ -7,8 +7,12 @@
  * OctoberCMS plugins can define any Laravel routes here.
  */
 
-use Demo\Api\Http\Controllers\PostController;
 use Demo\Api\Http\Controllers\TodoController;
+
+// Redirect site root to admin panel
+Route::get('/', function () {
+    return redirect(Backend::url('demo/api/todos'));
+});
 
 Route::prefix('api/v1')->middleware('api')->group(function () {
 
@@ -16,10 +20,6 @@ Route::prefix('api/v1')->middleware('api')->group(function () {
     Route::options('{any}', function () {
         return response('', 200);
     })->where('any', '.*');
-
-    // Posts API
-    Route::get('/posts', [PostController::class, 'index']);
-    Route::get('/posts/{slug}', [PostController::class, 'show']);
 
     // Todos API (full CRUD)
     Route::get('/todos', [TodoController::class, 'index']);
@@ -31,7 +31,7 @@ Route::prefix('api/v1')->middleware('api')->group(function () {
     Route::get('/health', function () {
         return response()->json([
             'status' => 'ok',
-            'cms_module' => config('cms.disableCmsModule') ? 'disabled' : 'enabled',
+            'cms_module' => str_contains(env('LOAD_MODULES', ''), 'Cms') ? 'enabled' : 'disabled',
             'message' => 'OctoberCMS headless API is running!',
         ]);
     });

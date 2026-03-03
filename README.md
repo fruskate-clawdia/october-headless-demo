@@ -1,8 +1,19 @@
 # OctoberCMS Headless + Vue.js Demo
 
-> **Proof of concept**: OctoberCMS без CMS-модуля как чистый API backend, Vue.js как полноценный фронт со своим роутингом.
->
-> Коллеги говорят что на OctoberCMS нельзя сделать фронт на чём угодно? Смотрите сюда 👇
+> OctoberCMS без CMS-модуля как чистый API backend, Vue.js 3 SPA с Aurora-темой как фронтенд.
+
+## Screenshots
+
+**Vue.js Frontend — Todo List (Aurora Theme)**
+![Frontend Todos](docs/screenshots/frontend-todos.png)
+
+**OctoberCMS Admin Panel — Dashboard & CRUD**
+![Admin Dashboard](docs/screenshots/admin-dashboard.png)
+
+**Vue.js Frontend — About Page**
+![Frontend About](docs/screenshots/frontend-about.png)
+
+---
 
 ## Суть
 
@@ -18,42 +29,51 @@ OctoberCMS — это не только CMS с Twig-шаблонами. Это *
 
 ```
 october-headless-demo/
-├── backend/                         # OctoberCMS (Laravel)
-│   ├── composer.json                # ← зависимости, с этого начинаем
-│   ├── .env.example                 # ← конфиг (скопировать в .env)
+├── backend/                              # OctoberCMS (Laravel)
+│   ├── composer.json                     # Зависимости PHP
+│   ├── .env.example                      # Конфиг (скопировать в .env)
 │   ├── config/
-│   │   └── cms.php                  # ← CMS_DISABLE_MODULE=true
+│   │   └── cms.php                       # CMS_DISABLE_MODULE=true
 │   └── plugins/demo/api/
-│       ├── Plugin.php               # CORS + меню в Admin
-│       ├── routes.php               # API роуты (/api/v1/*)
+│       ├── Plugin.php                    # CORS + навигация в Admin
+│       ├── routes.php                    # API роуты (/api/v1/*)
 │       ├── models/
-│       │   ├── Post.php
-│       │   └── Todo.php
+│       │   └── Todo.php                  # Модель с Sortable trait
 │       ├── http/controllers/
-│       │   ├── PostController.php   # GET /api/v1/posts
-│       │   └── TodoController.php   # CRUD /api/v1/todos
+│       │   └── TodoController.php        # CRUD /api/v1/todos
 │       ├── controllers/
-│       │   ├── Todos.php            # OctoberCMS Admin контроллер
+│       │   └── Todos.php                 # Admin контроллер + stats dashboard
 │       │   └── todos/
-│       │       ├── config_list.yaml # Список в Admin
-│       │       └── config_form.yaml # Форма создания/редактирования
+│       │       ├── index.php             # Список + панель статистики
+│       │       ├── create.php            # Форма создания
+│       │       ├── update.php            # Форма редактирования
+│       │       ├── config_list.yaml      # Конфиг списка + reorder
+│       │       └── config_form.yaml      # Конфиг формы
 │       └── updates/
 │           ├── version.yaml
 │           └── create_todos_table.php
-└── frontend/                        # Vue.js SPA
-    ├── package.json                 # ← зависимости npm
-    ├── vite.config.js               # Vite + proxy на backend
-    ├── index.html
-    └── src/
-        ├── main.js
-        ├── App.vue
-        ├── router/index.js          # Vue Router — клиентский роутинг
-        ├── api/client.js            # Axios → OctoberCMS API
-        └── views/
-            ├── HomeView.vue         # / — список постов
-            ├── PostView.vue         # /posts/:slug
-            ├── TodoView.vue         # /todos — Todo лист (API-backed)
-            └── AboutView.vue        # /about
+├── frontend/                             # Vue.js 3 SPA
+│   ├── package.json                      # Зависимости npm
+│   ├── vite.config.js                    # Vite + proxy на backend
+│   ├── index.html                        # Fontshare fonts (Clash Display + Satoshi)
+│   └── src/
+│       ├── main.js
+│       ├── App.vue                       # Layout + page transitions
+│       ├── router/index.js               # Vue Router
+│       ├── api/client.js                 # Axios → OctoberCMS API
+│       ├── stores/todos.js               # Pinia store (API + localStorage)
+│       ├── assets/styles/
+│       │   ├── variables.css             # Design tokens (Aurora palette)
+│       │   ├── global.css                # Reset, glassmorphism, grain texture
+│       │   └── transitions.css           # Vue Router page transitions
+│       ├── components/
+│       │   └── AppNavbar.vue             # Sticky glassmorphism navbar
+│       └── views/
+│           ├── TodoView.vue              # / — Todo list (CRUD)
+│           ├── AboutView.vue             # /about — Architecture overview
+│           └── NotFoundView.vue          # 404 — Gradient text
+└── docs/
+    └── screenshots/                      # Скриншоты для README
 ```
 
 ## Архитектура
@@ -64,11 +84,24 @@ october-headless-demo/
 │   localhost:5173        │                            │   localhost:8000          │
 │                         │                            │                          │
 │  Vue Router (SPA)       │                            │  CMS Module: DISABLED ✗  │
-│  /         → HomeView   │                            │  API Routes: ENABLED  ✓  │
-│  /todos    → TodoView   │                            │  Admin Panel: /backend   │
-│  /about    → AboutView  │                            │  Database: SQLite/MySQL  │
+│  /         → TodoView   │                            │  API Routes: ENABLED  ✓  │
+│  /about    → AboutView  │                            │  Admin Panel: /admin     │
+│                         │                            │  Database: SQLite/MySQL  │
+│  Aurora Theme           │                            │  Stats Dashboard         │
+│  Glassmorphism + Grain  │                            │  Drag & Drop Reorder     │
 └─────────────────────────┘                            └──────────────────────────┘
 ```
+
+## Фичи
+
+| Фича | Описание |
+|------|----------|
+| **Headless CMS** | CMS-модуль отключён одной строкой, OctoberCMS = чистый Laravel API |
+| **Aurora Theme** | Тёмная тема с градиентным фоном, glassmorphism-карточки, grain texture |
+| **Stats Dashboard** | Панель статистики в админке: Total / Pending / Completed / Added Today |
+| **Drag & Drop Reorder** | Сортировка задач перетаскиванием в Admin (Sortable trait) |
+| **Page Transitions** | Плавные переходы между страницами (Vue Router transitions) |
+| **Real-time Sync** | Создай задачу в Admin — она сразу видна во Vue, и наоборот |
 
 ## Установка и запуск
 
@@ -97,7 +130,7 @@ php artisan serve
 # → http://localhost:8000
 ```
 
-Войти в Admin: `http://localhost:8000/backend`
+Войти в Admin: `http://localhost:8000/admin`
 Логин: `admin` / Пароль: задаётся при `october:up`
 
 ### 2. Frontend (Vue.js)
@@ -125,6 +158,16 @@ curl http://localhost:8000/api/v1/todos
 # → {"data":[...]}
 ```
 
+## API Endpoints
+
+| Method | URL | Описание |
+|--------|-----|----------|
+| GET | `/api/v1/health` | Проверка работы API |
+| GET | `/api/v1/todos` | Список задач |
+| POST | `/api/v1/todos` | Создать задачу |
+| PUT | `/api/v1/todos/:id` | Обновить задачу |
+| DELETE | `/api/v1/todos/:id` | Удалить задачу |
+
 ## Ключевой момент — одна строка отключает CMS
 
 **`backend/config/cms.php`**:
@@ -141,25 +184,13 @@ CMS_DISABLE_MODULE=true
 
 ## Демо: Admin → Vue.js синхронизация
 
-1. Открываем Admin: `http://localhost:8000/backend`
-2. Переходим в **Todos** (в меню слева)
+1. Открываем Admin: `http://localhost:8000/admin`
+2. Переходим в **Todo List** (в меню слева)
 3. Создаём задачу
-4. Открываем Vue фронт: `http://localhost:5173/todos`
+4. Открываем Vue фронт: `http://localhost:5173`
 5. Видим только что созданную задачу — **без перезагрузки страницы**
 
 И наоборот — добавляем задачу в Vue, она появляется в Admin.
-
-## API Endpoints
-
-| Method | URL | Описание |
-|--------|-----|----------|
-| GET | `/api/v1/health` | Проверка работы API |
-| GET | `/api/v1/posts` | Список постов |
-| GET | `/api/v1/posts/:slug` | Один пост |
-| GET | `/api/v1/todos` | Список задач |
-| POST | `/api/v1/todos` | Создать задачу |
-| PUT | `/api/v1/todos/:id` | Обновить задачу |
-| DELETE | `/api/v1/todos/:id` | Удалить задачу |
 
 ## Можно использовать любой фронт
 
@@ -171,7 +202,7 @@ OctoberCMS как backend — это просто Laravel API. Клиент мо
 | React | ✅ |
 | Next.js | ✅ |
 | Nuxt.js | ✅ |
-| Мобильное приложение (iOS/Android) | ✅ |
+| Mobile (iOS/Android) | ✅ |
 | Postman / curl | ✅ |
 
 ---

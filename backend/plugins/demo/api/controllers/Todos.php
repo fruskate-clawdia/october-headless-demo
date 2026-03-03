@@ -2,12 +2,8 @@
 
 use BackendMenu;
 use Backend\Classes\Controller;
+use Demo\Api\Models\Todo;
 
-/**
- * Todos Backend Controller
- * Registers in OctoberCMS Admin panel under Demo > Todos
- * Create/edit todos here → Vue.js reads them via API
- */
 class Todos extends Controller
 {
     public $implement = [
@@ -21,6 +17,16 @@ class Todos extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Demo.Api', 'todos');
+        BackendMenu::setContext('Demo.Api', 'todos', 'todos');
+    }
+
+    public function index()
+    {
+        $this->vars['totalCount'] = Todo::count();
+        $this->vars['doneCount'] = Todo::where('done', true)->count();
+        $this->vars['pendingCount'] = Todo::where('done', false)->count();
+        $this->vars['todayCount'] = Todo::whereDate('created_at', today())->count();
+
+        $this->asExtension('ListController')->index();
     }
 }

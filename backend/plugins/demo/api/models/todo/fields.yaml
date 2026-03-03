@@ -1,0 +1,10 @@
+fields:
+    title:
+        label: Task Title
+        type: text
+        span: full
+        placeholder: What needs to be done?
+    done:
+        label: Mark as done
+        type: switch
+        span: left
